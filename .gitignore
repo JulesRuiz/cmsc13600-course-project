@@ -1,3 +1,7 @@
-*.db
 .DS_Store
 junk
+*.swp
+.pytest_cache
+__pycache__
+.pycache
+*.pyc
