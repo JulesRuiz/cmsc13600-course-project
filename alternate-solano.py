@@ -15,7 +15,7 @@ def alternate_solano(filename, n = 2):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("filename")
-    parser.add_argument("n", nargs = "?", type = int, default = 2)
+    parser.add_argument("-n", nargs = "?", type = int, default = 2)
     args = parser.parse_args()
     
     alternate_solano(args.filename, args.n)
