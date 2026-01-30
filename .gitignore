@@ -6,3 +6,5 @@ __pycache__
 .pycache
 *.pyc
 venv
+db.sqlite3
+uncommondata/db.sqlite3
