@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <body style="display:flex;justify-content:center;">
+    <div style="width:500px;text-align:center;margin-top:50px;font-family:Arial,sans-serif;">
+      <h2>Create Account</h2>
+
+      <form action="/app/api/createUser/" method="post">
+        {% csrf_token %}
+
+        <p><input type="text" name="user_name" placeholder="Username" required></p>
+        <p><input type="email" name="email" placeholder="Email" required></p>
+        <p><input type="password" name="password" placeholder="Password" required></p>
+
+        <p>
+          <select name="is_curator" required>
+            <option value="0">Harvester</option>
+            <option value="1">Curator</option>
+          </select>
+        </p>
+
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+  </body>
+</html>

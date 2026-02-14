@@ -1,13 +1,13 @@
 from django.conf import settings
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class UserType(models.Model):
-    name = models.CharField(max_length=32, unique=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_curator = models.BooleanField(default=False)
 
-    def __str__(self) -> str:
-        return self.name
-
+    def __str__(self):
+        return f"{self.user.username} - curator={self.is_curator}"
 
 class Institution(models.Model):
     name = models.CharField(max_length=255, unique=True)

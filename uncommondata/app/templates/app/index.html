@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <body style="display:flex;justify-content:center;">
+    <div style="width:700px;text-align:center;margin-top:40px;font-family:Arial,sans-serif;">
+      <h1>HW4 Home</h1>
+
+      <p>
+        <b>Team Bio</b><br>
+        Jules Ruiz — A second-year Statistics and Data Science major eager to learn web development skills
+      </p>
+
+      <p><b>Current time:</b> {{ now_str }}</p>
+
+      {% if user.is_authenticated %}
+        <p>
+          Logged in as
+          <span style="font-weight:bold;background:yellow;padding:2px 6px;border-radius:6px;">
+            {{ user.username }}
+          </span>
+        </p>
+      {% else %}
+        <p>You are not logged in.</p>
+      {% endif %}
+
+      <p><a href="/app/new/">Create an account</a></p>
+      <p><a href="/accounts/login/">Login</a></p>
+    </div>
+  </body>
+</html>

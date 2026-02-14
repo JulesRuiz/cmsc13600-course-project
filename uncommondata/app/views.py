@@ -1,38 +1,64 @@
-
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import PageRevision, Page
 from datetime import datetime
-
-''' Views to process POST requests to update 
-wikipedia-like content in databse '''
+from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
+from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
+from django.views.decorators.csrf import csrf_exempt
 
 def index(request):
-    return render(request, 'app/index.html', {})
+    now_str = datetime.now().strftime("%B %d, %Y %I:%M %p")
+    return render(request, "app/index.html", {"now_str": now_str})
+
+def new_user_form(request):
+    if request.method == "GET":
+        return render(request, "app/new.html")
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["GET", "POST"])
+
+    email = request.POST.get("email")
+    username = request.POST.get("user_name")
+    password = request.POST.get("password")
+    is_curator_raw = request.POST.get("is_curator")
+
+    if not email or not username or not password or is_curator_raw is None:
+        return HttpResponseBadRequest("missing fields")
+
+    if User.objects.filter(email=email).exists():
+        return HttpResponseBadRequest("email already in use")
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    login(request, user)
+
+    return redirect("/")
 
 @csrf_exempt
-def editpage(request):
-    print("KEYS", request.POST.keys())
-    content = request.POST['content']
-    page = request.POST["page"]
+def create_user_api(request):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
 
-    print("PAGE", page)
-    print("CONTENT:", content)
-    # If page isn't in Page table, add it first
-    if page not in Page.objects.values_list("title", flat=True):
-        new_page = Page(title = page, created_at = datetime.now())
-        new_page.save()
-    # Do the work: add row to PageRevision table
-    page_revision = PageRevision(page = page, 
-         content = content, edited_at = datetime.now() ) 
-    page_revision.save()
-    # Django response for return value or unhappy server
-    return HttpResponse("")
+    email = request.POST.get("email")
+    username = request.POST.get("user_name")
+    password = request.POST.get("password")
+    is_curator_raw = request.POST.get("is_curator")
 
-'''  Sample command-line POST request: 
-  curl -X POST http://localhost:8000/app/editpage \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "page=default+page&content=This+is+some+content+MORE"
-'''
+    if not email or not username or not password or is_curator_raw is None:
+        return HttpResponseBadRequest("missing fields")
 
+    if User.objects.filter(email=email).exists():
+        return HttpResponseBadRequest("email already in use")
+
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password
+    )
+
+    login(request, user)
+
+    return HttpResponse("success", status=201)
+
+def logout_view(request):
+    logout(request)
+    return redirect("index")
