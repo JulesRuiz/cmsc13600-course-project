@@ -7,15 +7,32 @@
       <form action="/app/api/createUser/" method="post">
         {% csrf_token %}
 
-        <p><input type="text" name="user_name" placeholder="Username" required></p>
-        <p><input type="email" name="email" placeholder="Email" required></p>
-        <p><input type="password" name="password" placeholder="Password" required></p>
+        <p>
+          <input type="text" name="user_name" placeholder="Username" required>
+        </p>
 
         <p>
-          <select name="is_curator" required>
-            <option value="0">Harvester</option>
-            <option value="1">Curator</option>
-          </select>
+          <input type="email" name="email" placeholder="Email" required>
+        </p>
+
+        <p>
+          <input type="password" name="password" placeholder="Password" required>
+        </p>
+
+        <p><b>User Type:</b></p>
+
+        <p>
+          <label>
+            <input type="radio" name="is_curator" value="0" required>
+            Harvester
+          </label>
+        </p>
+
+        <p>
+          <label>
+            <input type="radio" name="is_curator" value="1" required>
+            Curator
+          </label>
         </p>
 
         <button type="submit">Sign Up</button>
