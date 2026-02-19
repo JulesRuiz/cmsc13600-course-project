@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% block content %}
   <h2>Login</h2>
   <form method="post">
@@ -6,3 +7,21 @@
     <button type="submit">Login</button>
   </form>
 {% endblock %}
+=======
+<!doctype html>
+<html>
+  <body>
+    <h1>Login</h1>
+
+    {% if form.errors %}
+      <p style="color:red;">Invalid username or password.</p>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Log in</button>
+    </form>
+  </body>
+</html>
+>>>>>>> 720d40a (Fixed files for HW5 submission)

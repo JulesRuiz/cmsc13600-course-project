@@ -1,0 +1,18 @@
+<h1>Uploads</h1>
+
+<form action="/app/api/upload/" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input name="institution" placeholder="Institution" required>
+  <input name="year" placeholder="Year" required>
+  <input name="url" placeholder="URL (optional)">
+  <input type="file" name="file" required>
+  <button type="submit">Upload</button>
+</form>
+
+<ul>
+{% for up in uploads %}
+  <li>{{ up.institution.name }} — {{ up.reporting_year.label }} — {{ up.file.name }}</li>
+{% empty %}
+  <li>No uploads yet.</li>
+{% endfor %}
+</ul>

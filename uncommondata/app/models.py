@@ -26,6 +26,7 @@ class ReportingYear(models.Model):
 class Upload(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     file = models.FileField(upload_to="uploads/")
+    url = models.URLField(null=True, blank=True)
 
     institution = models.ForeignKey(Institution, on_delete=models.PROTECT, related_name="uploads")
     reporting_year = models.ForeignKey(ReportingYear, on_delete=models.PROTECT, related_name="uploads")

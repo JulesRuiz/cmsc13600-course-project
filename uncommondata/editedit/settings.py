@@ -123,5 +123,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+<<<<<<< HEAD
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+=======
+LOGIN_REDIRECT_URL = "/app/uploads/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+>>>>>>> 720d40a (Fixed files for HW5 submission)
