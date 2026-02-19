@@ -20,3 +20,4 @@ db.sqlite3
 submission.zip
 uploads/
 uncommondata/uploads/
+test_uploads_auth.py
