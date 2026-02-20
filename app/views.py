@@ -1,33 +1,3 @@
-<<<<<<< HEAD
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from datetime import datetime
-from django.contrib.auth import login
-from django.contrib.auth.models import User
-from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
-from django.views.decorators.csrf import csrf_exempt
-
-def index(request):
-    now_str = datetime.now().strftime("%H:%M")
-    return render(request, "app/index.html", {"now_str": now_str})
-
-def new_user_form(request):
-    if request.method != "GET":
-        return HttpResponseNotAllowed(["GET"])
-
-    return render(request, "app/new.html")
-
-
-@csrf_exempt
-def create_user_api(request):
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
-
-    email = request.POST.get("email")
-    username = request.POST.get("user_name")
-    password = request.POST.get("password")
-    is_curator_raw = request.POST.get("is_curator")
-=======
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -52,25 +22,6 @@ def index(request):
 @csrf_exempt
 def editpage(request):
     return HttpResponse("")
->>>>>>> 720d40a (Fixed files for HW5 submission)
-
-    if not email or not username or not password or is_curator_raw is None:
-        return HttpResponseBadRequest("missing fields")
-
-<<<<<<< HEAD
-    if User.objects.filter(email=email).exists():
-        return HttpResponseBadRequest(f"{email} email already in use")
-
-    user = User.objects.create_user(
-        username=username,
-        email=email,
-        password=password
-    )
-
-    login(request, user)
-
-    return HttpResponse("success", status=201)
-=======
 
 def _is_curator(user) -> bool:
     return user.is_authenticated and (user.is_staff or user.is_superuser)
@@ -141,7 +92,7 @@ def upload(request):
     institution_name = (request.POST.get("institution") or "").strip()
     year_label = (request.POST.get("year") or "").strip()
     url = (request.POST.get("url") or "").strip() or None
-    file_obj = request.FILES.get("file")
+    file_obj = request.FILES.get("file") or request.FILES.get("upload")
 
     if not institution_name or not year_label or file_obj is None:
         return JsonResponse({"error": "Missing field(s)."}, status=400)
@@ -227,4 +178,3 @@ def knockknock(request):
         return HttpResponse((text or canned).strip(), content_type="text/plain", status=200)
     except Exception:
         return HttpResponse(canned, content_type="text/plain", status=200)
->>>>>>> 720d40a (Fixed files for HW5 submission)
