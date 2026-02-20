@@ -1,23 +1,14 @@
 .DS_Store
-junk
+
 *.swp
-.pytest_cache
-__pycache__
-.pycache
+
+__pycache__/
 *.pyc
-uncommondata/uploads/
-uncommondata/db.sqlite3
+.pytest_cache/
+
 db.sqlite3
 uploads/
 submission.zip
 
-# local/dev junk
-.DS_Store
-.pytest_cache/
-__pycache__/
-*.pyc
-db.sqlite3
-submission.zip
-uploads/
 uncommondata/uploads/
-test_uploads_auth.py
+uncommondata/db.sqlite3
