@@ -37,30 +37,29 @@ generated hash matched one in the puzzle.
 
 This found:
 
-key = 049677629 (with an integer form of 49677629)
+puzzle_key = 747585522
 
 Step 2: Identify quote
 
 Using the recovered key, I decoded the message through Google Search and identified the quote as:
 
-"I consider myself to be a man of principle. But, what man does not? 
-Even the cutthroat, I have noticed, considers his actions "moral" after a fashion.
-Perhaps another person, reading of my life, would name me a religious tyrant.
-He could call me arrogant. What is to make that man's opinion any less valid than my own?
-I guess it all comes down to one fact: In the end, I'm the one with the armies.”
+"As one would exp ect already from Polya's examples, probability theory as extended
+logic reproduces many aspects of human mental activity, sometimes in surprising and even disturbing detail.
+In Chapter 5 we end our equations exhibiting the phenomenon of a person who tells the truth and is not believed,
+ even though the disbelievers are reasoning consistently. The extremely vague it whether still more much new creative
+ theory explains why and under what circumstances this will happen.
 
-(from Mistborn: The Final Empire by Brandon Sanderson)
+(from Probability Theory: The Logic of Science By ET Jaynes)
 
 Step 3: Find misspelled word
 
 By comparing the expected tokenization of the correct quote against PUZZLE hashes,
-I located exactly one mismatch at index 39, which had an intended word of 'tyrant.'
+I located exactly one mismatch at index 62, which had an intended word of 'circumstances.'
 
 I then generated edit-distance candidates and found that the PUZZLE token was:
 
-tysxnt.
+cirupmstances
 
 This is the single misspelled word in the PUZZLE file.
 
-In total, including all the test attempts and computing time, this task took around 3-4 hours
-in total, with the final c program actually only taking a few minutes to find a match.
+In total, including all the test attempts and computing time, this task took around 4-5 hours.
