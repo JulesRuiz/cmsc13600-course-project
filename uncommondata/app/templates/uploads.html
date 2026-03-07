@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+    <title>Uploads</title>
+</head>
+<body>
+    <h1>Uploads</h1>
+
+    <form action="/app/api/upload/" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="institution" placeholder="institution">
+        <input type="text" name="year" placeholder="year">
+        <input type="text" name="url" placeholder="url">
+        <input type="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
+
+    <ul>
+        {% for up in uploads %}
+            <li>{{ up.file.name }}</li>
+        {% empty %}
+            <li>No uploads</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

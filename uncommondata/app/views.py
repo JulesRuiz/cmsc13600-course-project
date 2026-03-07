@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
@@ -54,9 +54,9 @@ def createUser(request):
 
 
 @require_GET
-def show_uploads(request):
+def uploads(request):
     if not request.user.is_authenticated:
-        return HttpResponse(status=403)
+        return redirect("/accounts/login/")
 
     if _is_curator(request.user):
         qs = Upload.objects.select_related(
@@ -72,38 +72,10 @@ def show_uploads(request):
 
     return render(request, "uploads.html", {"uploads": qs})
 
-
-@require_POST
-def upload(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
-
-    institution_name = (request.POST.get("institution") or "").strip()
-    year_label = (request.POST.get("year") or "").strip()
-    url = (request.POST.get("url") or "").strip() or None
-    file_obj = request.FILES.get("file") or request.FILES.get("upload")
-
-    if not institution_name or not year_label or file_obj is None:
-        return JsonResponse({"error": "Missing field(s)."}, status=400)
-
-    institution, _ = Institution.objects.get_or_create(name=institution_name)
-    reporting_year, _ = ReportingYear.objects.get_or_create(label=year_label)
-
-    up = Upload.objects.create(
-        institution=institution,
-        reporting_year=reporting_year,
-        uploaded_by=request.user,
-        file=file_obj,
-        url=url,
-    )
-
-    return JsonResponse({"id": up.id}, status=201)
-
-
 @require_GET
 def dump_uploads(request):
     if not request.user.is_authenticated:
-        return HttpResponse(status=403)
+        return HttpResponse(status=401)
 
     if _is_curator(request.user):
         qs = Upload.objects.select_related(
@@ -196,3 +168,4 @@ def process(request, id):
     }
 
     return JsonResponse(data, status=200)
+
