@@ -10,4 +10,6 @@ urlpatterns = [
     path('api/dump-data/', views.dump_data, name='dump_data'),
     path('api/knockknock/', views.knockknock, name='knockknock'),
     path('show-uploads/', views.show_uploads, name='show_uploads'),
+    path('api/download/<int:id>/', views.download, name='download'),
+    path('api/process/<int:id>/', views.process, name='process'),
 ]
