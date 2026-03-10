@@ -1,156 +1,44 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, JsonResponse, FileResponse
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from datetime import datetime
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET, require_POST
-from django.contrib.auth import get_user_model
-
-from .models import Upload, Institution, ReportingYear, UserType
-
 
 def index(request):
-    return HttpResponse("OK")
+    now_str = datetime.now().strftime("%H:%M")
+    return render(request, "app/index.html", {"now_str": now_str})
+
+def new_user_form(request):
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["GET"])
+
+    return render(request, "app/new.html")
 
 
 @csrf_exempt
-def editpage(request):
-    return HttpResponse("")
+def create_user_api(request):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
 
+    email = request.POST.get("email")
+    username = request.POST.get("user_name")
+    password = request.POST.get("password")
+    is_curator_raw = request.POST.get("is_curator")
 
-def _is_curator(user) -> bool:
-    if not user.is_authenticated:
-        return False
-    try:
-        return user.usertype.is_curator
-    except UserType.DoesNotExist:
-        return False
+    if not email or not username or not password or is_curator_raw is None:
+        return HttpResponseBadRequest("missing fields")
 
+    if User.objects.filter(email=email).exists():
+        return HttpResponseBadRequest(f"{email} email already in use")
 
-@require_POST
-def createUser(request):
-    User = get_user_model()
-
-    username = (request.POST.get("user_name") or "").strip()
-    password = request.POST.get("password") or ""
-    email = (request.POST.get("email") or "").strip()
-    is_curator = (request.POST.get("is_curator") or "0").strip()
-
-    if not username or not password:
-        return JsonResponse({"error": "Missing user_name or password"}, status=400)
-
-    user, created = User.objects.get_or_create(
+    user = User.objects.create_user(
         username=username,
-        defaults={"email": email},
+        email=email,
+        password=password
     )
 
-    if email and user.email != email:
-        user.email = email
+    login(request, user)
 
-    user.set_password(password)
-    user.save()
-
-    user_type, _ = UserType.objects.get_or_create(user=user)
-    user_type.is_curator = (is_curator == "1")
-    user_type.save()
-
-    return JsonResponse(
-        {"created": created, "username": user.username},
-        status=201 if created else 200,
-    )
-
-
-@require_GET
-def uploads(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-
-    if _is_curator(request.user):
-        qs = Upload.objects.select_related(
-            "institution", "reporting_year", "uploaded_by"
-        ).order_by("-uploaded_at")
-    else:
-        qs = (
-            Upload.objects
-            .filter(uploaded_by=request.user)
-            .select_related("institution", "reporting_year", "uploaded_by")
-            .order_by("-uploaded_at")
-        )
-
-    return render(request, "uploads.html", {"uploads": qs})
-
-
-@require_POST
-def upload(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
-
-    institution_name = (request.POST.get("institution") or "").strip()
-    year_label = (request.POST.get("year") or "").strip()
-    url = (request.POST.get("url") or "").strip() or None
-    file_obj = request.FILES.get("file") or request.FILES.get("upload")
-
-    if not institution_name or not year_label or file_obj is None:
-        return JsonResponse({"error": "Missing field(s)."}, status=400)
-
-    institution, _ = Institution.objects.get_or_create(name=institution_name)
-    reporting_year, _ = ReportingYear.objects.get_or_create(label=year_label)
-
-    up = Upload.objects.create(
-        institution=institution,
-        reporting_year=reporting_year,
-        uploaded_by=request.user,
-        file=file_obj,
-        url=url,
-    )
-
-    return JsonResponse({"id": str(up.id)}, status=201)
-
-
-@require_GET
-def dump_uploads(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
-
-    if _is_curator(request.user):
-        qs = Upload.objects.select_related(
-            "institution", "reporting_year", "uploaded_by"
-        ).all()
-    else:
-        qs = Upload.objects.select_related(
-            "institution", "reporting_year", "uploaded_by"
-        ).filter(uploaded_by=request.user)
-
-    data = {}
-    for up in qs.order_by("id"):
-        data[str(up.id)] = {
-            "user": up.uploaded_by.username,
-            "institution": up.institution.name,
-            "year": up.reporting_year.label,
-            "url": up.url,
-            "file": up.file.name.split("/")[-1] if up.file else None,
-        }
-
-    return JsonResponse(data, status=200)
-
-
-@require_GET
-def dump_data(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
-
-    if not _is_curator(request.user):
-        return HttpResponse(status=403)
-
-    return HttpResponse("OK", status=200)
-
-
-@require_GET
-def knockknock(request):
-    topic = (request.GET.get("topic") or "banana").strip()[:40]
-    joke = (
-        f"Knock knock.\n"
-        f"Who's there?\n"
-        f"{topic}.\n"
-        f"{topic} who?\n"
-        f"{topic} you glad I didn't say banana?"
-    )
-    return HttpResponse(joke, content_type="text/plain", status=200)
+    return HttpResponse("success", status=201)
