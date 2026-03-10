@@ -3,6 +3,11 @@ from . import views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("new/", views.new_user_form, name="new_user_form"),
-    path("api/createUser/", views.create_user_api, name="create_user_api"),
+    path("editpage", views.editpage, name="editpage"),
+    path("api/upload/", views.upload, name="upload"),
+    path("api/dump-uploads/", views.dump_uploads, name="dump_uploads"),
+    path("api/download/<str:id>/", views.download, name="download"),
+    path("api/process/<str:id>/", views.process, name="process"),
+    path("api/knockknock/", views.knockknock, name="knockknock"),
+    path("show-uploads/", views.show_uploads, name="show_uploads"),
 ]
