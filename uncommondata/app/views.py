@@ -8,16 +8,28 @@ from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth import get_user_model
 
 from .models import Upload, Institution, ReportingYear
-
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 def index(request):
     return HttpResponse("OK")
 
+def _is_curator(user) -> bool:
+    return getattr(user, "is_staff", False)
 
 @csrf_exempt
 def editpage(request):
     return HttpResponse("")
 
+@require_GET
+def dump_data(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    if not _is_curator(request.user):
+        return JsonResponse({"error": "Forbidden"}, status=403)
+
+    return JsonResponse({}, status=200)
 
 def _default_user():
     User = get_user_model()
@@ -40,6 +52,34 @@ def _serialize_upload(up: Upload) -> dict:
         "file": os.path.basename(up.file.name) if up.file else None,
     }
 
+@csrf_exempt
+@require_POST
+def create_user(request):
+    email = (request.POST.get("email") or "").strip()
+    user_name = (request.POST.get("user_name") or "").strip()
+    password = (request.POST.get("password") or "").strip()
+    is_curator = str(request.POST.get("is_curator") or "0").strip()
+
+    if not email or not user_name or not password:
+        return JsonResponse({"error": "Missing field(s)."}, status=400)
+
+    if User.objects.filter(username=user_name).exists():
+        return JsonResponse({"error": "Username already exists."}, status=400)
+
+    if User.objects.filter(email=email).exists():
+        return JsonResponse({"error": "Email already exists."}, status=400)
+
+    user = User.objects.create_user(
+        username=user_name,
+        email=email,
+        password=password,
+    )
+
+    if is_curator == "1":
+        user.is_staff = True
+        user.save()
+
+    return JsonResponse({"created": user.username}, status=201)
 
 @require_GET
 def show_uploads(request):
@@ -104,10 +144,12 @@ def upload(request):
 
 @require_GET
 def dump_uploads(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
     uploads = _all_uploads()
     data = {str(up.id): _serialize_upload(up) for up in uploads}
     return JsonResponse(data, status=200)
-
 
 @require_GET
 def download(request, id):
@@ -145,6 +187,15 @@ def _extract_first_number(pattern: str, text: str):
     except ValueError:
         return None
 
+@require_GET
+def uploads_page(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    if _is_curator(request.user):
+        return JsonResponse({"error": "Forbidden"}, status=403)
+
+    return HttpResponse("Uploads page", status=200)
 
 def _empty_process_payload():
     return {
